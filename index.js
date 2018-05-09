@@ -439,7 +439,7 @@ diff_match_patch.prototype.diff_bisectSplit_ = function(text1, text2, x, y,
  *     The zeroth element of the array of unique strings is intentionally blank.
  * @private
  */
-diff_match_patch.prototype.diff_linesToChars_ = function(text1, text2) {
+diff_match_patch.prototype.diff_linesToChars_ = function(text1, text2, delimiter = '\n') {
   var lineArray = [];  // e.g. lineArray[4] == 'Hello\n'
   var lineHash = {};   // e.g. lineHash['Hello\n'] == 4
 
@@ -449,7 +449,7 @@ diff_match_patch.prototype.diff_linesToChars_ = function(text1, text2) {
 
   /**
    * Split a text into an array of strings.  Reduce the texts to a string of
-   * hashes where each Unicode character represents one line.
+   * hashes where each Unicode character represents one word.
    * Modifies linearray and linehash through being a closure.
    * @param {string} text String to encode.
    * @return {string} Encoded string.
@@ -465,18 +465,26 @@ diff_match_patch.prototype.diff_linesToChars_ = function(text1, text2) {
     // Keeping our own length variable is faster than looking it up.
     var lineArrayLength = lineArray.length;
     while (lineEnd < text.length - 1) {
-      lineEnd = text.indexOf('\n', lineStart);
+      // look for spaces, not newlines
+      lineEnd = (function(text, offset) {
+        var initial = text.substr(offset).search(delimiter);
+        if (initial >= 0) {
+          initial += offset;
+        }
+        return initial;
+      })(text, lineStart);
       if (lineEnd == -1) {
-        lineEnd = text.length - 1;
+        lineEnd = text.length;
       }
-      var line = text.substring(lineStart, lineEnd + 1);
+      var line = text.substring(lineStart, lineEnd);
       lineStart = lineEnd + 1;
 
       if (lineHash.hasOwnProperty ? lineHash.hasOwnProperty(line) :
           (lineHash[line] !== undefined)) {
-        chars += String.fromCharCode(lineHash[line]);
+        // use visible characters (beginning at charcode 48) for easier debugging
+        chars += String.fromCharCode(48+lineHash[line]);
       } else {
-        chars += String.fromCharCode(lineArrayLength);
+        chars += String.fromCharCode(48+lineArrayLength);
         lineHash[line] = lineArrayLength;
         lineArray[lineArrayLength++] = line;
       }
@@ -497,14 +505,14 @@ diff_match_patch.prototype.diff_linesToChars_ = function(text1, text2) {
  * @param {!Array.<string>} lineArray Array of unique strings.
  * @private
  */
-diff_match_patch.prototype.diff_charsToLines_ = function(diffs, lineArray) {
+diff_match_patch.prototype.diff_charsToLines_ = function (diffs, lineArray, delimiter = '\n') {
   for (var x = 0; x < diffs.length; x++) {
     var chars = diffs[x][1];
     var text = [];
     for (var y = 0; y < chars.length; y++) {
-      text[y] = lineArray[chars.charCodeAt(y)];
+      text[y] = lineArray[chars.charCodeAt(y)-48];
     }
-    diffs[x][1] = text.join('');
+    diffs[x][1] = text.join(delimiter);
   }
 };
 
@@ -1310,7 +1318,7 @@ diff_match_patch.prototype.diff_levenshtein = function(diffs) {
 /**
  * Crush the diff into an encoded string which describes the operations
  * required to transform text1 into text2.
- * E.g. =3\t-2\t+ing  -> Keep 3 chars, delete 2 chars, insert 'ing'.
+ * E.g. =3  -2  +ing  -> Keep 3 chars, delete 2 chars, insert 'ing'.
  * Operations are tab-separated.  Inserted text is escaped using %xx notation.
  * @param {!Array.<!diff_match_patch.Diff>} diffs Array of diff tuples.
  * @return {string} Delta text.
@@ -1330,7 +1338,7 @@ diff_match_patch.prototype.diff_toDelta = function(diffs) {
         break;
     }
   }
-  return text.join('\t').replace(/%20/g, ' ');
+  return text.join('  ').replace(/%20/g, ' ');
 };
 
 
@@ -1346,7 +1354,7 @@ diff_match_patch.prototype.diff_fromDelta = function(text1, delta) {
   var diffs = [];
   var diffsLength = 0;  // Keeping our own length var is faster in JS.
   var pointer = 0;  // Cursor in text1
-  var tokens = delta.split(/\t/g);
+  var tokens = delta.split(/  /g);
   for (var x = 0; x < tokens.length; x++) {
     // Each token begins with a one character parameter which specifies the
     // operation of this token (delete, insert, equality).
@@ -1375,7 +1383,7 @@ diff_match_patch.prototype.diff_fromDelta = function(text1, delta) {
         }
         break;
       default:
-        // Blank tokens are ok (from a trailing \t).
+        // Blank tokens are ok (from a trailing   ).
         // Anything else is an error.
         if (tokens[x]) {
           throw new Error('Invalid diff operation in diff_fromDelta: ' +
@@ -2181,7 +2189,12 @@ diff_match_patch.patch_obj.prototype.toString = function() {
   return text.join('').replace(/%20/g, ' ');
 };
 
+class DiffMatchPatch {}
+DiffMatchPatch.constructor = diff_match_patch;
+Object.assign(DiffMatchPatch.prototype, diff_match_patch.prototype);
+
 module.exports = {
+  DiffMatchPatch,
   diff_match_patch,
   DIFF_DELETE,
   DIFF_INSERT,
