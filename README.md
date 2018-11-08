@@ -39,3 +39,18 @@ A standardized speed test tracks the [relative performance of diffs](https://doc
 This library implements [Myer's diff algorithm](https://neil.fraser.name/writing/diff/myers.pdf) which is generally considered to be the best general-purpose diff. A layer of [pre-diff speedups and post-diff cleanups](https://neil.fraser.name/writing/diff/) surround the diff algorithm, improving both performance and output quality.
 
 This library also implements a [Bitap matching algorithm](https://neil.fraser.name/writing/patch/bitap.ps) at the heart of a [flexible matching and patching strategy](https://neil.fraser.name/writing/patch/).
+
+## Sublime Text Dependency
+
+To use this as a Package Control Dependency https://packagecontrol.io/docs/dependencies create
+this `dependencies.json` file on the root of your Package:
+```json
+{
+    "*": {
+        "*": [
+            "DiffMatchPatch"
+        ]
+    }
+}
+```
+
