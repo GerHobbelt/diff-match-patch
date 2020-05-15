@@ -27,7 +27,7 @@
 #define stringForBOOL(A)  ([((NSNumber *)A) boolValue] ? @"true" : @"false")
 
 @interface DiffMatchPatchTest (PrivatMethods)
-- (NSArray *)diff_rebuildtexts:(NSMutableArray *)diffs;
+- (NSArray<NSString *> *)diff_rebuildtexts:(NSArray<Diff *> *)diffs;
 @end
 
 @implementation DiffMatchPatchTest
@@ -691,11 +691,11 @@
 
 - (void)test_diff_deltaTest {
   DiffMatchPatch *dmp = [DiffMatchPatch new];
-  NSMutableArray *expectedResult = nil;
+  NSArray<Diff *> *expectedResult = nil;
   NSError *error = nil;
 
   // Convert a diff into delta string.
-  NSMutableArray *diffs = [NSMutableArray arrayWithObjects:
+  NSArray<Diff *> *diffs = [NSMutableArray arrayWithObjects:
       [Diff diffWithOperation:DIFF_EQUAL andText:@"jump"],
       [Diff diffWithOperation:DIFF_DELETE andText:@"s"],
       [Diff diffWithOperation:DIFF_INSERT andText:@"ed"],
@@ -1078,7 +1078,7 @@
 
   // Generates error.
   NSError *error = nil;
-  NSMutableArray *patches = [dmp patch_fromText:@"Bad\nPatch\n" error:&error];
+  NSArray<Patch *> *patches = [dmp patch_fromText:@"Bad\nPatch\n" error:&error];
   if (patches != nil || error == nil) {
     // Error expected.
     XCTFail(@"patch_fromText: #5.");
@@ -1092,7 +1092,7 @@
   DiffMatchPatch *dmp = [DiffMatchPatch new];
 
   NSString *strp = @"@@ -21,18 +22,17 @@\n jump\n-s\n+ed\n  over \n-the\n+a\n  laz\n";
-  NSMutableArray *patches;
+  NSArray<Patch *> *patches;
   patches = [dmp patch_fromText:strp error:NULL];
   XCTAssertEqualObjects(strp, [dmp patch_toText:patches], @"toText Test #1");
 
@@ -1130,7 +1130,7 @@
 - (void)test_patch_makeTest {
   DiffMatchPatch *dmp = [DiffMatchPatch new];
 
-  NSMutableArray *patches;
+  NSArray<Patch *> *patches;
   patches = [dmp patch_makeFromOldString:@"" andNewString:@""];
   XCTAssertEqualObjects(@"", [dmp patch_toText:patches], @"patch_make: Null case.");
 
@@ -1145,7 +1145,7 @@
   patches = [dmp patch_makeFromOldString:text1 andNewString:text2];
   XCTAssertEqualObjects(expectedPatch, [dmp patch_toText:patches], @"patch_make: Text1+Text2 inputs.");
 
-  NSMutableArray *diffs = [dmp diff_mainOfOldString:text1 andNewString:text2 checkLines:NO];
+  NSArray<Diff *> *diffs = [dmp diff_mainOfOldString:text1 andNewString:text2 checkLines:NO];
   patches = [dmp patch_makeFromDiffs:diffs];
   XCTAssertEqualObjects(expectedPatch, [dmp patch_toText:patches], @"patch_make: Diff input.");
 
@@ -1188,22 +1188,22 @@
 - (void)test_patch_splitMaxTest {
   // Assumes that Match_MaxBits is 32.
   DiffMatchPatch *dmp = [DiffMatchPatch new];
-  NSMutableArray *patches;
+  NSMutableArray<Patch *> *patches;
 
-  patches = [dmp patch_makeFromOldString:@"abcdefghijklmnopqrstuvwxyz01234567890" andNewString:@"XabXcdXefXghXijXklXmnXopXqrXstXuvXwxXyzX01X23X45X67X89X0"];
+  patches = [[dmp patch_makeFromOldString:@"abcdefghijklmnopqrstuvwxyz01234567890" andNewString:@"XabXcdXefXghXijXklXmnXopXqrXstXuvXwxXyzX01X23X45X67X89X0"] mutableCopy];
   [dmp patch_splitMax:patches];
   XCTAssertEqualObjects(@"@@ -1,32 +1,46 @@\n+X\n ab\n+X\n cd\n+X\n ef\n+X\n gh\n+X\n ij\n+X\n kl\n+X\n mn\n+X\n op\n+X\n qr\n+X\n st\n+X\n uv\n+X\n wx\n+X\n yz\n+X\n 012345\n@@ -25,13 +39,18 @@\n zX01\n+X\n 23\n+X\n 45\n+X\n 67\n+X\n 89\n+X\n 0\n", [dmp patch_toText:patches], @"Assumes that Match_MaxBits is 32 #1");
 
-  patches = [dmp patch_makeFromOldString:@"abcdef1234567890123456789012345678901234567890123456789012345678901234567890uvwxyz" andNewString:@"abcdefuvwxyz"];
+  patches = [[dmp patch_makeFromOldString:@"abcdef1234567890123456789012345678901234567890123456789012345678901234567890uvwxyz" andNewString:@"abcdefuvwxyz"] mutableCopy];
   NSString *oldToText = [dmp patch_toText:patches];
   [dmp patch_splitMax:patches];
   XCTAssertEqualObjects(oldToText, [dmp patch_toText:patches], @"Assumes that Match_MaxBits is 32 #2");
 
-  patches = [dmp patch_makeFromOldString:@"1234567890123456789012345678901234567890123456789012345678901234567890" andNewString:@"abc"];
+  patches = [[dmp patch_makeFromOldString:@"1234567890123456789012345678901234567890123456789012345678901234567890" andNewString:@"abc"] mutableCopy];
   [dmp patch_splitMax:patches];
   XCTAssertEqualObjects(@"@@ -1,32 +1,4 @@\n-1234567890123456789012345678\n 9012\n@@ -29,32 +1,4 @@\n-9012345678901234567890123456\n 7890\n@@ -57,14 +1,3 @@\n-78901234567890\n+abc\n", [dmp patch_toText:patches], @"Assumes that Match_MaxBits is 32 #3");
 
-  patches = [dmp patch_makeFromOldString:@"abcdefghij , h : 0 , t : 1 abcdefghij , h : 0 , t : 1 abcdefghij , h : 0 , t : 1" andNewString:@"abcdefghij , h : 1 , t : 1 abcdefghij , h : 1 , t : 1 abcdefghij , h : 0 , t : 1"];
+  patches = [[dmp patch_makeFromOldString:@"abcdefghij , h : 0 , t : 1 abcdefghij , h : 0 , t : 1 abcdefghij , h : 0 , t : 1" andNewString:@"abcdefghij , h : 1 , t : 1 abcdefghij , h : 1 , t : 1 abcdefghij , h : 0 , t : 1"] mutableCopy];
   [dmp patch_splitMax:patches];
   XCTAssertEqualObjects(@"@@ -2,32 +2,32 @@\n bcdefghij , h : \n-0\n+1\n  , t : 1 abcdef\n@@ -29,32 +29,32 @@\n bcdefghij , h : \n-0\n+1\n  , t : 1 abcdef\n", [dmp patch_toText:patches], @"Assumes that Match_MaxBits is 32 #4");
 
@@ -1213,7 +1213,7 @@
 - (void)test_patch_addPaddingTest {
   DiffMatchPatch *dmp = [DiffMatchPatch new];
 
-  NSMutableArray *patches;
+  NSArray<Patch *> *patches;
   patches = [dmp patch_makeFromOldString:@"" andNewString:@"test"];
   XCTAssertEqualObjects(@"@@ -0,0 +1,4 @@\n+test\n",
       [dmp patch_toText:patches],
@@ -1250,7 +1250,7 @@
   dmp.Match_Distance = 1000;
   dmp.Match_Threshold = 0.5f;
   dmp.Patch_DeleteThreshold = 0.5f;
-  NSMutableArray *patches;
+  NSArray<Patch *> *patches;
   patches = [dmp patch_makeFromOldString:@"" andNewString:@""];
   NSArray *results = [dmp patch_apply:patches toString:@"Hello world."];
   NSMutableArray *boolArray = [results objectAtIndex:1];
@@ -1339,7 +1339,7 @@
 //  TEST UTILITY FUNCTIONS
 
 
-- (NSArray *)diff_rebuildtexts:(NSMutableArray *)diffs;
+- (NSArray<NSString *> *)diff_rebuildtexts:(NSArray<Diff *> *)diffs;
 {
   NSArray *text = [NSMutableArray arrayWithObjects:[NSMutableString string], [NSMutableString string], nil];
   for (Diff *myDiff in diffs) {

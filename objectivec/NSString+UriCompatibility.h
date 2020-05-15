@@ -21,10 +21,13 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
 
 @interface NSString (UriCompatibility)
 
-- (NSString *)diff_stringByAddingPercentEscapesForEncodeUriCompatibility;
-- (NSString *)diff_stringByReplacingPercentEscapesForEncodeUriCompatibility;
+- (NSString * _Nullable)diff_stringByAddingPercentEscapesForEncodeUriCompatibility;
+- (NSString * _Nullable)diff_stringByReplacingPercentEscapesForEncodeUriCompatibility;
 
 @end
+
+NS_ASSUME_NONNULL_END

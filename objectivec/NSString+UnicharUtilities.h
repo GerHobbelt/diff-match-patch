@@ -21,10 +21,13 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
 
 @interface NSString (UnicharUtilities)
 
 + (NSString *)diff_stringFromUnichar:(unichar)ch;
-- (NSString *)diff_substringWithCharacterAtIndex:(NSUInteger)anIndex;
+- (NSString *)diff_substringWithCharacterAtIndex:(NSInteger)anIndex;
 
 @end
+
+NS_ASSUME_NONNULL_END

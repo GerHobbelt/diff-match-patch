@@ -31,7 +31,7 @@
   return [(NSString *)c autorelease];
 }
 
-- (NSString *)diff_substringWithCharacterAtIndex:(NSUInteger)anIndex;
+- (NSString *)diff_substringWithCharacterAtIndex:(NSInteger)anIndex;
 {
   return [self substringWithRange:NSMakeRange(anIndex, 1)];
 }

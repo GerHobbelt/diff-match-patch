@@ -24,6 +24,6 @@
 
 @interface NSString (JavaSubstring)
 
-- (NSString *)diff_javaSubstringFromStart:(NSUInteger)start toEnd:(NSUInteger)end;
+- (NSString * _Nonnull)diff_javaSubstringFromStart:(NSInteger)start toEnd:(NSInteger)end;
 
 @end
