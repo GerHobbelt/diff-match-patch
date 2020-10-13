@@ -13,5 +13,5 @@ def assert_path(*args):
         sys.path.append( module )
 
 # Import the dependency
-assert_path( SUBLIME_PACKAGES_DIRECTORY, CURRENT_PACKAGE_NAME, 'python3' )
+assert_path( SUBLIME_PACKAGES_DIRECTORY, CURRENT_PACKAGE_NAME, 'st3' )
 
