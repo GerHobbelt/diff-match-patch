@@ -1,0 +1,19 @@
+{
+  "name": "diff-match-patch",
+  "version": "2019.7.25",
+  "description": "Diff Match Patch is a high-performance library in multiple languages that manipulates plain text.",
+  "main": "javascript/diff_match_patch.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mig8447/diff-match-patch.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mig8447/diff-match-patch/issues"
+  },
+  "homepage": "https://github.com/mig8447/diff-match-patch#readme"
+}
