@@ -2,7 +2,7 @@
   "name": "diff-match-patch",
   "version": "2019.7.25",
   "description": "Diff Match Patch is a high-performance library in multiple languages that manipulates plain text.",
-  "main": "javascript/diff_match_patch.js",
+  "main": "javascript/diff_match_patch_uncompressed.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
