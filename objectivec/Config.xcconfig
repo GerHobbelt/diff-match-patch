@@ -1,0 +1,12 @@
+//
+//  Config.xcconfig
+//  DiffMatchPatch
+//
+//  Created by Vyacheslav Volodko on 11.12.2020.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+MARKETING_VERSION = 1.0.0
+PROJECT_VERSION = 1.0
