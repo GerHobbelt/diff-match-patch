@@ -1322,7 +1322,7 @@ if (text2_buffer != NULL) free(text2_buffer);
         // Hash values for objects must not change while in a collection.
         indexToChange = equalitiesLastValue + 1;
         diffToChange = [[diffs objectAtIndex:indexToChange] retain];
-        [diffs replaceObjectAtIndex:indexToChange withObject:[NSNull null]];
+        [diffs replaceObjectAtIndex:indexToChange withObject:(Diff *)[NSNull null]];
         diffToChange.operation = DIFF_INSERT;
         [diffs replaceObjectAtIndex:indexToChange withObject:diffToChange];
         [diffToChange release];
