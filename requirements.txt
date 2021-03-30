@@ -1,1 +1,1 @@
--e git+https://github.com/sidiropulos/pytest-runner.git#egg=pytest_runner
+
